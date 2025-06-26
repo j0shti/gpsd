@@ -7,7 +7,7 @@ user="$(whoami)"
 
 LOG='/home/'$user'/logs/run_gps.log'
 ENV_PATH='/home/'$user'/zwo/cam'
-PROGRAM=$ENV_PATH'autostartcam.sh'shut
+PROGRAM=$ENV_PATH'autostartcam.sh'
 
 ST="$(date +%s)"
 
@@ -91,7 +91,7 @@ while :
 do
   sleep 5
   SYNC_COUNT=$(($SYNC_COUNT+5))
-  if [ $SYNC_COUNT -gt $MAX_SYNC_TIME ] ;then
+  if [ $SYNC_COUNT -gt $MAX_SYNC_TIME ] ; then
     echo '[ERROR] Failed to sync the SYSTEM CLOCK with the GPS time within '$(($MAX_SYNC_TIME/60))' minutes [Start rebooting]' >> ${LOG}
     sudo reboot
   fi
@@ -108,7 +108,7 @@ done
 
 # Launch ZWO software
 echo $(date +'%F %T %Z')' - Launch ASC control software' >> ${LOG}
-. $ENV_PATH'bin/activate'
+#. $ENV_PATH'bin/activate'
 $PROGRAM
 echo $(date +'%F %T %Z')' - [ERROR] - ASC control software has been terminated unexpectedly [Start rebooting]' >> ${LOG}
 echo $(date +'%F %T %Z')' - Unexpected software termination' >> '/home/'$user'/logs/crash.log'
