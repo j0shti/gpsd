@@ -5,7 +5,7 @@ MAX_SYNC_TIME=1200 # Time limit for checking the system time synchronization wit
 
 user="$(whoami)"
 
-LOG='/home/'$user'/logs/run_gps.log'
+LOG='/home/'$user'/gpsd/logs/run_gps.log'
 ENV_PATH='/home/'$user'/zwo/cam'
 PROGRAM=$ENV_PATH'autostartcam.sh'
 
