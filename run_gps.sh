@@ -11,7 +11,6 @@ PROGRAM=$ENV_PATH'autostartcam.sh'
 
 ST="$(date +%s)"
 
-echo '###############################################################'
 while :
 do
   sleep 1 # sleep 1 second
