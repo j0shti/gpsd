@@ -17,7 +17,7 @@ do
   # Check the status of the DAEMONs (gpsd, chronyd)
   ET="$(date +%s)"
   ELAPSED=$(($ET-$ST))
-#  echo $ELAPSED
+  echo $ELAPSED
   STAT_GPSD="$(systemctl is-active gpsd)"
   STAT_CHRONYD="$(systemctl is-active chronyd)"
   if [ "$STAT_GPSD" = 'active' ] && [ "$STAT_GPSD" = 'active' ] ; then
