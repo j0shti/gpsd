@@ -5,7 +5,7 @@ MAX_SYNC_TIME=1200 # Time limit for checking the system time synchronization wit
 
 user="$(whoami)"
 
-LOG='/home/'$user'/gpsd/logs/run_gps.log'
+LOG_PATH='/home/'$user'/gpsd/logs/'
 ENV_PATH='/home/'$user'/zwo/cam'
 PROGRAM=$ENV_PATH'autostartcam.sh'
 
@@ -17,7 +17,7 @@ do
   # Check the status of the DAEMONs (gpsd, chronyd)
   ET="$(date +%s)"
   ELAPSED=$(($ET-$ST))
-  echo $ELAPSED > ${LOG}
+  echo $ELAPSED > ${LOG_PATH}
   STAT_GPSD="$(systemctl is-active gpsd)"
   STAT_CHRONYD="$(systemctl is-active chronyd)"
   if [ "$STAT_GPSD" = 'active' ] && [ "$STAT_GPSD" = 'active' ] ; then
@@ -37,7 +37,7 @@ do
     else
       kill -9 "$PID"
 #      echo 'gpspipe has been killed'
-      echo 'gpspipe has been killed' >> ${LOG}
+      echo 'gpspipe has been killed' >> ${LOG}'run_gps.log'
     fi
     break
   else
@@ -110,10 +110,10 @@ echo $(date +'%F %T %Z')' - Launch ASC control software' >> ${LOG}
 #. $ENV_PATH'bin/activate'
 $PROGRAM
 echo $(date +'%F %T %Z')' - [ERROR] - ASC control software has been terminated unexpectedly [Start rebooting]' >> ${LOG}
-echo $(date +'%F %T %Z')' - Unexpected software termination' >> '/home/'$user'/gpsd/logs/crash.log'
-echo Check asc_control_rev1.py >> '/home/'$user'/logs/crash.log'
-ps -ef | grep asc_control_rev1.py >> '/home/'$user'/logs/crash.log'
-echo Check run_gps.sh >> '/home/'$user'/logs/crash.log'
-ps -ef | grep run_gps.sh >> '/home/'$user'/logs/crash.log'
+echo $(date +'%F %T %Z')' - Unexpected software termination' >> ${LOG_PATH}'crash.log'
+echo Check asc_control_rev1.py >> ${LOG_PATH}'crash.log'
+ps -ef | grep asc_control_rev1.py >> ${LOG_PATH}'crash.log'
+echo Check run_gps.sh >> ${LOG_PATH}'crash.log'
+ps -ef | grep run_gps.sh >> ${LOG_PATH}'crash.log'
 sleep 1800 # Safety time for preventing unstoppable rebooting
 sudo reboot
