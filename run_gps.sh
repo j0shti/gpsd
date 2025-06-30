@@ -110,7 +110,7 @@ echo $(date +'%F %T %Z')' - Launch ASC control software' >> ${LOG}
 #. $ENV_PATH'bin/activate'
 $PROGRAM
 echo $(date +'%F %T %Z')' - [ERROR] - ASC control software has been terminated unexpectedly [Start rebooting]' >> ${LOG}
-echo $(date +'%F %T %Z')' - Unexpected software termination' >> '/home/'$user'/logs/crash.log'
+echo $(date +'%F %T %Z')' - Unexpected software termination' >> '/home/'$user'/gpsd/logs/crash.log'
 echo Check asc_control_rev1.py >> '/home/'$user'/logs/crash.log'
 ps -ef | grep asc_control_rev1.py >> '/home/'$user'/logs/crash.log'
 echo Check run_gps.sh >> '/home/'$user'/logs/crash.log'
