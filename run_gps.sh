@@ -6,7 +6,7 @@ MAX_SYNC_TIME=1200 # Time limit for checking the system time synchronization wit
 user="$(whoami)"
 
 LOG_PATH='/home/'$user'/gpsd/logs/'
-ENV_PATH='/home/'$user'/zwo/cam'
+ENV_PATH='/home/'$user'/zwo/cam/'
 PROGRAM=$ENV_PATH'autostartcam.sh'
 
 ST="$(date +%s)"
@@ -25,14 +25,14 @@ do
     sleep 10 # sleep 10 seconds before running gpspipe
     ET='$(date +%s)'
 #    echo 'Run gpspipe'
-    echo 'Run gpspipe (gpsd: '$STAT_GPSD', chronyd: '$STAT_CHRONYD') in '$ELAPSED' sec after boot' >> ${LOG}
+    echo 'Run gpspipe (gpsd: '$STAT_GPSD', chronyd: '$STAT_CHRONYD') in '$ELAPSED' sec after boot' >> ${LOG}'run_gps.log'
     gpspipe -dlr -o /dev/null
 #    echo sleep 20 seconds before killing gpspipe
     sleep 20 # sleep 20 seconds before killing gpspipe
     PID=`ps -ef | grep "gpspipe" | grep -v 'grep' | awk '{print $2}'`
 #    echo 'PID='$PID
     if [ -z "$PID" ] ; then
-      echo '[ERROR] gpspipe is not running - It should be running [Start rebooting]' >> ${LOG}
+      echo '[ERROR] gpspipe is not running - It should be running [Start rebooting]' >> ${LOG}'run_gps.log'
       sudo reboot
     else
       kill -9 "$PID"
@@ -42,21 +42,21 @@ do
     break
   else
     if [ $ELAPSED -ge $MAX_TIME ] ; then
-      echo 'Cannot run gpspipe (gpsd: '$STAT_GPSD', chronyd: '$STAT_CHRONYD') in '$ELAPSED' sec after boot' >> ${LOG}
+      echo 'Cannot run gpspipe (gpsd: '$STAT_GPSD', chronyd: '$STAT_CHRONYD') in '$ELAPSED' sec after boot' >> ${LOG}'run_gps.log'
       # Attempt final procedure (start DAEMON manually)
       sleep 30 # sleep 30 seconds before starting DAEMONs manually
       if [ "$STAT_GPSD" != 'active' ] ; then
         sudo systemctl start gpsd
       fi
       if [ $? -ne 0 ] ; then
-        echo '[ERROR] Failed to start gpsd DAEMON manually [Start rebooting]' >> ${LOG}
+        echo '[ERROR] Failed to start gpsd DAEMON manually [Start rebooting]' >> ${LOG}'run_gps.log'
         sudo reboot
       fi
       if [ "STAT_CHRONYD" != 'active' ] ; then
         sudo systemctl start chronyd
       fi
       if [ $? -ne 0 ] ; then
-        echo '[ERROR] Failed to start chronyd DAEMON manually [Start rebooting]' >> ${LOG}
+        echo '[ERROR] Failed to start chronyd DAEMON manually [Start rebooting]' >> ${LOG}'run_gps.log'
         sudo reboot
       fi
       sleep 10 # sleep 10 seconds before running gpspipe
@@ -64,26 +64,26 @@ do
       ELAPSED=$(($ET-$ST))
 #      echo $ELAPSED
 #      echo 'Run gpspipe'
-      echo 'Run gpspipe (gpsd: '$STAT_GPSD', chronyd: '$STAT_CHRONYD') in '$ELAPSED' sec after boot after running DAEMONs manually' >> ${LOG}
+      echo 'Run gpspipe (gpsd: '$STAT_GPSD', chronyd: '$STAT_CHRONYD') in '$ELAPSED' sec after boot after running DAEMONs manually' >> ${LOG}'run_gps.log'
       gpspipe -dlr -o /dev/null
 #      echo sleep 20 seconds before killing gpspipe
       sleep 20 # sleep 20 seconds before killing gpspipe
       PID=`ps -ef | grep "gpspipe" | grep -v 'grep' | awk '{print $2}'`
 #      echo 'PID='$PID
       if [ -z "$PID" ] ; then
-        echo '[ERROR] gpspipe is not running - It should be running [Start rebooting]' >> ${LOG}
+        echo '[ERROR] gpspipe is not running - It should be running [Start rebooting]' >> ${LOG}'run_gps.log'
         sudo reboot
       else
         kill -9 $PID
 #        echo 'gpspipe has been killed'
-        echo 'gpspipe has been killed' >> ${LOG}
+        echo 'gpspipe has been killed' >> ${LOG}'run_gps.log'
       fi
     fi
   fi
 done
 
 # Checking Reach to achieve stable SYSTEM CLOCK
-echo Checking Reach to achieve stable SYSTEM CLOCK >> ${LOG}
+echo Checking Reach to achieve stable SYSTEM CLOCK >> ${LOG}'run_gps.log'
 ST="$(date +%s)"
 SYNC_COUNT=0
 while :
@@ -91,25 +91,25 @@ do
   sleep 5
   SYNC_COUNT=$(($SYNC_COUNT+5))
   if [ $SYNC_COUNT -gt $MAX_SYNC_TIME ] ; then
-    echo '[ERROR] Failed to sync the SYSTEM CLOCK with the GPS time within '$(($MAX_SYNC_TIME/60))' minutes [Start rebooting]' >> ${LOG}
+    echo '[ERROR] Failed to sync the SYSTEM CLOCK with the GPS time within '$(($MAX_SYNC_TIME/60))' minutes [Start rebooting]' >> ${LOG}'run_gps.log'
     sudo reboot
   fi
   REACH="$(chronyc sources | awk 'NR == 4 {print $5}')"
-  echo '  Waiting for stable SYSTEM CLOCK (Reach='$REACH' / Elapsed time='$SYNC_COUNT' seconds)...' >> ${LOG}
+  echo '  Waiting for stable SYSTEM CLOCK (Reach='$REACH' / Elapsed time='$SYNC_COUNT' seconds)...' >> ${LOG}'run_gps.log'
   ET="$(date +%s)"
   ELAPSED=$(($ET-$ST))
   if [ $REACH -eq 377 ] ; then
     TIMESTAMP="$(date +'%F %T %Z')"
-    echo $TIMESTAMP' - SYSTEM CLOCK has become stable in '$SYNC_COUNT' seconds!' >> ${LOG}
+    echo $TIMESTAMP' - SYSTEM CLOCK has become stable in '$SYNC_COUNT' seconds!' >> ${LOG}'run_gps.log'
     break
   fi
 done
 
 # Launch ZWO software
-echo $(date +'%F %T %Z')' - Launch ASC control software' >> ${LOG}
+echo $(date +'%F %T %Z')' - Launch ASC control software' >> ${LOG}'run_gps.log'
 #. $ENV_PATH'bin/activate'
 $PROGRAM
-echo $(date +'%F %T %Z')' - [ERROR] - ASC control software has been terminated unexpectedly [Start rebooting]' >> ${LOG}
+echo $(date +'%F %T %Z')' - [ERROR] - ASC control software has been terminated unexpectedly [Start rebooting]' >> ${LOG}'run_gps.log'
 echo $(date +'%F %T %Z')' - Unexpected software termination' >> ${LOG_PATH}'crash.log'
 echo Check asc_control_rev1.py >> ${LOG_PATH}'crash.log'
 ps -ef | grep asc_control_rev1.py >> ${LOG_PATH}'crash.log'
